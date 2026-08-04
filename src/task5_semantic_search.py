@@ -26,39 +26,68 @@ def semantic_search(query: str, top_k: int = 10) -> list[dict]:
         }
         Sorted by score descending.
     """
-    # TODO: Implement semantic search
-    #
-    # Bước 1: Embed query bằng cùng model ở Task 4
-    # Bước 2: Query vector store (cosine similarity)
-    # Bước 3: Return top_k results
-    #
-    # Ví dụ với ChromaDB:
-    # from .task4_chunking_indexing import get_collection, get_embedding_model
-    #
-    # model = get_embedding_model()
-    # query_vector = model.encode(query).tolist()
-    #
-    # collection = get_collection()
-    # results = collection.query(
-    #     query_embeddings=[query_vector],
-    #     n_results=top_k,
-    #     include=["documents", "metadatas", "distances"],
-    # )
-    #
-    # output = []
-    # for doc, meta, dist in zip(
-    #     results["documents"][0], results["metadatas"][0], results["distances"][0]
-    # ):
-    #     score = max(0.0, 1.0 - dist)  # cosine distance → similarity
-    #     output.append({"content": doc, "score": round(score, 4), "metadata": meta})
-    #
-    # output.sort(key=lambda x: x["score"], reverse=True)
-    # return output[:top_k]
-    raise NotImplementedError("Implement semantic_search")
+    import os
+    import sys
+    from pathlib import Path
+    
+    # Đảm bảo import được module từ cùng thư mục
+    sys.path.append(str(Path(__file__).parent))
+    from task4_chunking_indexing import CHROMA_DIR, COLLECTION_NAME, EMBEDDING_MODEL
+    
+    import chromadb
+    from openai import OpenAI
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    
+    # 1. Khởi tạo client OpenRouter để tính vector cho query
+    client_oai = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=os.environ.get("OPENROUTER_API_KEY"),
+    )
+    
+    response = client_oai.embeddings.create(
+        input=[query],
+        model=EMBEDDING_MODEL
+    )
+    query_vector = response.data[0].embedding
+    
+    # 2. Khởi tạo kết nối tới database ChromaDB
+    client_chroma = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    collection = client_chroma.get_collection(name=COLLECTION_NAME)
+    
+    # 3. Tìm kiếm bằng vector similarity
+    results = collection.query(
+        query_embeddings=[query_vector],
+        n_results=top_k,
+        include=["documents", "metadatas", "distances"],
+    )
+    
+    # 4. Format kết quả trả về
+    output = []
+    if results and results["documents"]:
+        for doc, meta, dist in zip(
+            results["documents"][0], results["metadatas"][0], results["distances"][0]
+        ):
+            # ChromaDB lưu distance theo cosine. distance = 1 - similarity.
+            # Do đó score (độ tương đồng) = 1.0 - distance
+            score = max(0.0, 1.0 - dist)
+            output.append({"content": doc, "score": round(score, 4), "metadata": meta})
+    
+    output.sort(key=lambda x: x["score"], reverse=True)
+    return output[:top_k]
 
 
 if __name__ == "__main__":
     # Test
-    results = semantic_search("quy định trả hàng hoàn tiền shopee", top_k=5)
-    for r in results:
-        print(f"[{r['score']:.3f}] {r['content'][:100]}...")
+    print("="*50)
+    print("TEST: Task 5 - Semantic Search")
+    print("="*50)
+    query = "Quy định đổi trả hàng bị lỗi của Tiki"
+    print(f"Query: '{query}'\n")
+    results = semantic_search(query, top_k=3)
+    
+    for i, r in enumerate(results):
+        print(f"--- Top {i+1} [Score: {r['score']:.4f}] ---")
+        print(f"File: {r['metadata'].get('source', 'N/A')}")
+        print(f"Nội dung: {r['content'][:150]}...\n")

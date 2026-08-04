@@ -27,7 +27,7 @@ Gọi điện thoại đến hotline: 19006035 (8h – 21h tất cả các ngày
 
 Gửi thư điện tử đến địa chỉ email: hotro@tiki.vn.
 
-Chat trực tiếp đến Tiki.vn: https://ti.ki/Chat_voi_tro_ly_ca_nhan
+Chat trực tiếp đến Tiki.vn: https://tiki.vn/Chat_voi_tro_ly_ca_nhan
 
 Bước 2: Bộ phận Tiki Care sẽ tiếp nhận các khiếu nại, liên hệ làm rõ các yêu cầu của Khách hàng trong thời gian sớm nhất có thể và không quá 3 ngày làm việc, kể từ ngày nhận được yêu cầu. Tùy theo tính chất và mức độ của sự việc, Công ty Tiki sẽ có những biện pháp cụ thể để hỗ trợ khách hàng giải quyết khiếu nại, tranh chấp.
 
