@@ -35,8 +35,12 @@ def setup_directory():
 
 # TODO: Điền danh sách URL bài viết cần crawl
 ARTICLE_URLS = [
-    # Ví dụ (trang công khai Shopee Vietnam):
-    # "https://help.shopee.vn/portal/4/article/...",
+    # Ví dụ (trang công khai Tiki):
+    "https://hotro.tiki.vn/s/article/huong-dan-dat-hang",
+    "https://hotro.tiki.vn/s/article/chinh-sach-doi-tra-san-pham",
+    "https://hotro.tiki.vn/s/article/lam-the-nao-de-kiem-tra-tinh-trang-don-hang",
+    "https://hotro.tiki.vn/s/article/cac-phuong-thuc-thanh-toan-tren-tiki",
+    "https://hotro.tiki.vn/s/article/huong-dan-su-dung-tiki-xu",
 ]
 
 
@@ -55,15 +59,18 @@ async def crawl_article(url: str) -> dict:
     from crawl4ai import AsyncWebCrawler
 
     # TODO: Implement crawling logic
-    # async with AsyncWebCrawler() as crawler:
-    #     result = await crawler.arun(url=url)
-    #     return {
-    #         "url": url,
-    #         "title": result.metadata.get("title", "Unknown"),
-    #         "date_crawled": datetime.now().isoformat(),
-    #         "content_markdown": result.markdown,
-    #     }
-    raise NotImplementedError("Implement crawl_article")
+    async with AsyncWebCrawler() as crawler:
+        result = await crawler.arun(url=url)
+        # Handle metadata safely depending on crawl4ai version
+        metadata = getattr(result, "metadata", {})
+        title = metadata.get("title", "Unknown") if isinstance(metadata, dict) else "Unknown"
+        
+        return {
+            "url": url,
+            "title": title,
+            "date_crawled": datetime.now().isoformat(),
+            "content_markdown": result.markdown,
+        }
 
 
 async def crawl_all():
