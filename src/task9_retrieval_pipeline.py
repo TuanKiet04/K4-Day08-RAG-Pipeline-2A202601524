@@ -85,7 +85,7 @@ def _safe_search(search_fn, name: str, query: str, top_k: int) -> list[dict]:
     try:
         raw_results = search_fn(query, top_k=top_k) or []
     except Exception as exc:
-        print(f"  ⚠ {name} failed: {exc}")
+        print(f"  [warn] {name} failed: {exc}")
         return []
 
     normalized = []
@@ -112,7 +112,7 @@ def _fallback_pageindex(query: str, top_k: int) -> list[dict]:
     try:
         fallback = pageindex_search(query, top_k=top_k) or []
     except Exception as exc:
-        print(f"  ⚠ pageindex fallback failed: {exc}")
+        print(f"  [warn] pageindex fallback failed: {exc}")
         return []
 
     results = []
@@ -179,7 +179,7 @@ def retrieve(
             sparse_results = sparse_future.result()
     except Exception as exc:
         # Defensive fallback: nếu ThreadPool hoặc môi trường có vấn đề, chạy tuần tự.
-        print(f"  ⚠ parallel retrieval failed, retry sequentially: {exc}")
+        print(f"  [warn] parallel retrieval failed, retry sequentially: {exc}")
         dense_results = _safe_search(semantic_search, "semantic", query, candidate_k)
         sparse_results = _safe_search(lexical_search, "lexical", query, candidate_k)
 
@@ -202,10 +202,10 @@ def retrieve(
             final_results = rerank(query, merged, top_k=top_k, method=RERANK_METHOD)
             final_results = _mark_hybrid(final_results)
         except NotImplementedError as exc:
-            print(f"  ⚠ rerank method '{RERANK_METHOD}' not ready: {exc}")
+            print(f"  [warn] rerank method '{RERANK_METHOD}' not ready: {exc}")
             final_results = merged[:top_k]
         except Exception as exc:
-            print(f"  ⚠ rerank failed: {exc}")
+            print(f"  [warn] rerank failed: {exc}")
             final_results = merged[:top_k]
     else:
         final_results = merged[:top_k]
@@ -213,7 +213,7 @@ def retrieve(
     # Step 5: fallback sang PageIndex nếu semantic confidence thấp hoặc hybrid rỗng.
     if should_fallback or not final_results:
         print(
-            f"  ⚠ Semantic best score ({best_dense_score:.3f}) "
+            f"  [warn] Semantic best score ({best_dense_score:.3f}) "
             f"< threshold ({score_threshold:.3f}); trying PageIndex fallback"
         )
         fallback = _fallback_pageindex(query, top_k=top_k)
