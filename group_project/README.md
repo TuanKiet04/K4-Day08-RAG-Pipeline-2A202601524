@@ -79,10 +79,10 @@ Xem code mẫu (DeepEval/RAGAS/TruLens) chi tiết trong `README.md` gốc mục
 
 | Thành viên | MSSV | Nhiệm vụ | Trạng thái |
 |-----------|------|----------|------------|
-| | | | |
-| | | | |
-| | | | |
-| | | | |
+| Ngô Huy Hoàn (`nhuyhoan004`) | 2A202601925 | Thu thập và chuẩn hóa dữ liệu; Task 4 Chunking & ChromaDB Indexing; Task 5 Semantic Search | Hoàn thành |
+| Ngô Văn Kiệt (`tuankiet04`) | 2A202601524 | Task 6 Lexical Search; Task 7 RRF Reranking; Task 8 PageIndex Fallback | Hoàn thành |
+| Nguyễn Minh Đức (`MinhDuc-IT`) | 2A202601438 | Task 10 Generation có citation; tích hợp giao diện Streamlit `app.py` | Hoàn thành |
+| Phạm Văn Vinh (`vinhphamv2303-arch`) | 2A202601988 | Task 9 Retrieval Pipeline: nối Semantic + BM25 + RRF + fallback; Evaluation pipeline và báo cáo RAGAS | Hoàn thành |
 
 ---
 

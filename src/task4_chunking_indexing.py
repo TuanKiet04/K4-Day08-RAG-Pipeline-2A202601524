@@ -52,7 +52,7 @@ CHUNK_OVERLAP = 200      # Chọn overlap 200 ký tự (khoảng 2-3 câu) để
 CHUNKING_METHOD = "recursive"  # "recursive": phương pháp an toàn nhất, tự động ưu tiên cắt ở các dấu ngắt đoạn (\n\n), rồi đến dấu chấm câu (.), giúp câu văn được giữ trọn vẹn nhất có thể.
 
 # TODO: Chọn embedding model và giải thích
-EMBEDDING_MODEL = "openai/text-embedding-3-small"  # Sử dụng model của OpenAI thông qua OpenRouter. Hỗ trợ đa ngôn ngữ (tiếng Việt) cực kỳ mạnh mẽ, chất lượng cao hơn hẳn các model local nhỏ.
+EMBEDDING_MODEL = "text-embedding-3-small"  # Sử dụng official OpenAI Embeddings API. Hỗ trợ đa ngôn ngữ (tiếng Việt) tốt, chất lượng cao hơn hẳn các model local nhỏ.
 EMBEDDING_DIM = 1536 # Kích thước chiều của text-embedding-3-small
 
 # TODO: Chọn vector store
@@ -134,11 +134,11 @@ def embed_chunks(chunks: list[dict]) -> list[dict]:
     """
     from openai import OpenAI
     
-    # Sử dụng OpenRouter API để lấy Embedding của OpenAI
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=os.environ.get("OPENROUTER_API_KEY"),
-    )
+    # Sử dụng official OpenAI API để lấy embedding.
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise EnvironmentError("Thiếu OPENAI_API_KEY trong .env để tạo embeddings")
+    client = OpenAI(api_key=api_key)
     
     texts = [c["content"] for c in chunks]
     

@@ -40,8 +40,8 @@ TOP_P = 0.9
 # Chọn 0.3 vì: RAG cần factual, ít sáng tạo
 TEMPERATURE = 0.3
 
-# OpenRouter model ID — có thể override bằng biến môi trường LLM_MODEL
-LLM_MODEL = os.getenv("LLM_MODEL", "openai/gpt-4o-mini")
+# Model sinh câu trả lời. Khi dùng official OpenAI API, model không có prefix "openai/".
+LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
 
 
 # =============================================================================
@@ -123,23 +123,98 @@ def format_context(chunks: list[dict]) -> str:
 # =============================================================================
 
 def _build_llm_client():
-    """Khởi tạo OpenAI-compatible client (ưu tiên OpenRouter)."""
+    """Khởi tạo OpenAI-compatible client.
+
+    Ưu tiên official OpenAI API nếu có OPENAI_API_KEY để tránh lỗi OpenRouter credits
+    khi file .env vẫn giữ cả OPENROUTER_API_KEY.
+    """
     from openai import OpenAI
 
-    openrouter_key = os.getenv("OPENROUTER_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY")
+    openrouter_key = os.getenv("OPENROUTER_API_KEY")
+    provider = os.getenv("LLM_PROVIDER", "").strip().lower()
 
-    if openrouter_key:
-        return OpenAI(
-            api_key=openrouter_key,
-            base_url="https://openrouter.ai/api/v1",
-        )
+    if provider == "openrouter" and openrouter_key:
+        return OpenAI(api_key=openrouter_key, base_url="https://openrouter.ai/api/v1"), "openrouter"
     if openai_key:
-        return OpenAI(api_key=openai_key)
+        return OpenAI(api_key=openai_key), "openai"
+    if openrouter_key:
+        return OpenAI(api_key=openrouter_key, base_url="https://openrouter.ai/api/v1"), "openrouter"
 
     raise RuntimeError(
         "Thiếu API key. Hãy set OPENROUTER_API_KEY hoặc OPENAI_API_KEY trong file .env"
     )
+
+
+def _resolve_llm_model(provider: str) -> str:
+    """Chuẩn hóa model id theo provider."""
+    model = LLM_MODEL
+    if provider == "openai" and model.startswith("openai/"):
+        return model.removeprefix("openai/")
+    if provider == "openrouter" and "/" not in model:
+        return f"openai/{model}"
+    return model
+
+
+def generate_answer_from_chunks(
+    query: str,
+    chunks: list[dict],
+    chat_history: list[dict] | None = None,
+) -> dict:
+    """
+    Sinh câu trả lời từ danh sách chunks đã retrieve sẵn.
+
+    Hàm này phục vụ evaluation A/B: eval có thể tự gọi Task 9 với config khác nhau
+    (có rerank / không rerank), rồi dùng chung prompt generation của Task 10.
+    """
+    if not chunks:
+        return {
+            "answer": "Tôi không thể xác minh thông tin này từ nguồn hiện có",
+            "sources": [],
+            "retrieval_source": "none",
+        }
+
+    # Reorder để tránh lost-in-the-middle.
+    reordered = reorder_for_llm(chunks)
+    context = format_context(reordered)
+
+    user_message = (
+        f"Context:\n{context}\n\n"
+        f"---\n\n"
+        f"Question: {query}\n\n"
+        f"Hãy trả lời ngắn gọn, trực tiếp, chỉ dựa trên Context ở trên. "
+        f"Mỗi ý chính cần cite đúng tên file trong trường Source, ví dụ [5.md] hoặc [article_03.md]. "
+        f"Không cite dạng [Document 1]. "
+        f"Nếu thiếu bằng chứng, nói rõ không thể xác minh."
+    )
+
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    if chat_history:
+        for turn in chat_history[-4:]:
+            role = turn.get("role")
+            content = turn.get("content")
+            if role in {"user", "assistant"} and content:
+                messages.append({"role": role, "content": content})
+    messages.append({"role": "user", "content": user_message})
+
+    client, provider = _build_llm_client()
+    response = client.chat.completions.create(
+        model=_resolve_llm_model(provider),
+        messages=messages,
+        temperature=TEMPERATURE,
+        top_p=TOP_P,
+        max_tokens=700,
+    )
+    answer = (response.choices[0].message.content or "").strip()
+    if not answer:
+        answer = "Tôi không thể xác minh thông tin này từ nguồn hiện có"
+
+    retrieval_source = chunks[0].get("source", "hybrid") if chunks else "none"
+    return {
+        "answer": answer,
+        "sources": chunks,
+        "retrieval_source": retrieval_source,
+    }
 
 
 def generate_with_citation(
@@ -172,60 +247,7 @@ def generate_with_citation(
     """
     # Step 1: Retrieve
     chunks = retrieve(query, top_k=top_k) or []
-
-    if not chunks:
-        return {
-            "answer": "Tôi không thể xác minh thông tin này từ nguồn hiện có",
-            "sources": [],
-            "retrieval_source": "none",
-        }
-
-    # Step 2: Reorder (tránh lost-in-the-middle)
-    reordered = reorder_for_llm(chunks)
-
-    # Step 3: Format context
-    context = format_context(reordered)
-
-    # Step 4: Build prompt
-    user_message = (
-        f"Context:\n{context}\n\n"
-        f"---\n\n"
-        f"Question: {query}\n\n"
-        f"Hãy trả lời dựa trên Context ở trên. Mỗi khẳng định cần có citation "
-        f"dạng [Source Name]. Nếu thiếu bằng chứng, nói rõ không thể xác minh."
-    )
-
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-
-    # Optional: kèm vài turn gần nhất để hỗ trợ follow-up (không nhét quá dài)
-    if chat_history:
-        for turn in chat_history[-4:]:
-            role = turn.get("role")
-            content = turn.get("content")
-            if role in {"user", "assistant"} and content:
-                messages.append({"role": role, "content": content})
-
-    messages.append({"role": "user", "content": user_message})
-
-    # Step 5: Call LLM
-    client = _build_llm_client()
-    response = client.chat.completions.create(
-        model=LLM_MODEL,
-        messages=messages,
-        temperature=TEMPERATURE,
-        top_p=TOP_P,
-    )
-    answer = (response.choices[0].message.content or "").strip()
-    if not answer:
-        answer = "Tôi không thể xác minh thông tin này từ nguồn hiện có"
-
-    # Step 6: Return
-    retrieval_source = chunks[0].get("source", "hybrid") if chunks else "none"
-    return {
-        "answer": answer,
-        "sources": chunks,
-        "retrieval_source": retrieval_source,
-    }
+    return generate_answer_from_chunks(query, chunks, chat_history=chat_history)
 
 
 if __name__ == "__main__":

@@ -1,17 +1,77 @@
 [
   {
-    "question": "Người mua có thể yêu cầu trả hàng/hoàn tiền trong thời hạn bao lâu sau khi nhận hàng?",
-    "expected_answer": "Trong vòng 15 ngày kể từ khi giao hàng thành công (24 giờ đối với thực phẩm tươi sống/đông lạnh).",
-    "expected_context": "Trang Returns and Refunds Policy, mục Return/Refund Eligibility"
+    "question": "Tiki hỗ trợ những phương thức thanh toán nào?",
+    "expected_answer": "Tiki hỗ trợ thanh toán khi nhận hàng (COD), thẻ ATM có đăng ký thanh toán trực tuyến, thẻ Visa/Master/JCB, ví điện tử như MoMo, ZaloPay, VNPAY, ViettelPay, thanh toán trả góp và thanh toán qua đối tác Mua Trước Trả Sau như Home Credit, Lotte Finance.",
+    "expected_context": "data/standardized/legal/5.md — CHÍNH SÁCH THANH TOÁN, mục 1. PHƯƠNG THỨC THANH TOÁN"
   },
   {
-    "question": "Shopee hỗ trợ những phương thức thanh toán nào?",
-    "expected_answer": "ShopeePay Wallet, thẻ tín dụng/ghi nợ, trả góp qua thẻ, QR Code, chuyển khoản qua app ngân hàng, thẻ NAPAS, Apple Pay, Google Pay, và COD.",
-    "expected_context": "Trang Payment Methods Overview"
+    "question": "Đơn hàng COD trên Tiki được áp dụng tối đa cho giá trị bao nhiêu?",
+    "expected_answer": "Thanh toán tiền mặt khi nhận hàng (COD) áp dụng cho đơn hàng có tổng trị giá từ 20.000.000đ trở xuống.",
+    "expected_context": "data/standardized/legal/5.md — CHÍNH SÁCH THANH TOÁN, mục 1.1 Thanh toán tiền mặt khi nhận hàng (COD)"
   },
   {
-    "question": "Người bán không được đăng bán những sản phẩm nào?",
-    "expected_answer": "Hàng giả/nhái, sản phẩm bất hợp pháp, vi phạm sở hữu trí tuệ, và các mặt hàng nằm trong danh sách cấm của sàn.",
-    "expected_context": "Trang Product Listing Regulations, mục Prohibited Content"
+    "question": "Tiki hoàn tiền như thế nào với đơn thanh toán tiền mặt và đơn thanh toán trực tuyến?",
+    "expected_answer": "Với đơn đã thanh toán bằng tiền mặt, Tiki hoàn tiền bằng chuyển khoản hoặc Tiki Xu sau khi nhận được sản phẩm trả về; với đơn đã thanh toán trực tuyến, Tiki hoàn tiền vào tài khoản khách hàng đã dùng khi thanh toán.",
+    "expected_context": "data/standardized/legal/5.md — CHÍNH SÁCH THANH TOÁN, mục 2. PHƯƠNG THỨC HOÀN TIỀN TRONG TRƯỜNG HỢP ĐỔI TRẢ HÀNG HÓA HOẶC CHẤM DỨT DỊCH VỤ"
+  },
+  {
+    "question": "Thời gian hoàn tiền đối với hàng đổi trả trên Tiki được xử lý khi nào?",
+    "expected_answer": "Tiki tiến hành hoàn tiền ngay sau khi quy trình kiểm tra đánh giá chất lượng sản phẩm đổi/trả hoàn tất; quy trình này có thể cần khoảng 3–5 ngày làm việc và thông tin cụ thể được cập nhật qua email hoặc thông báo trong tài khoản.",
+    "expected_context": "data/standardized/legal/5.md — CHÍNH SÁCH THANH TOÁN, mục 2. PHƯƠNG THỨC HOÀN TIỀN"
+  },
+  {
+    "question": "Khách hàng được kiểm hàng trên Tiki trong phạm vi nào?",
+    "expected_answer": "Khách hàng có thể mở niêm phong thùng hàng của Tiki để kiểm tra hàng hóa khi nhận hàng, nhưng việc kiểm tra không bao gồm mở seal riêng của sản phẩm hoặc kiểm tra sâu như cắm điện, sử dụng thử, ghi chép dữ liệu.",
+    "expected_context": "data/standardized/legal/10.md — CHÍNH SÁCH KIỂM HÀNG"
+  },
+  {
+    "question": "Chính sách bảo mật thanh toán của Tiki nêu những cơ chế bảo mật nào?",
+    "expected_answer": "Tiki sử dụng các đối tác cổng thanh toán được cấp phép và tuân thủ tiêu chuẩn bảo mật ngành; thông tin tài chính được bảo vệ bằng SSL, có chứng nhận PCI DSS do Trustwave cung cấp và sử dụng OTP qua SMS để xác thực truy cập tài khoản.",
+    "expected_context": "data/standardized/legal/11.md — CHÍNH SÁCH BẢO MẬT THANH TOÁN, mục Cam kết bảo mật và Cơ chế bảo mật"
+  },
+  {
+    "question": "Tiki thu thập thông tin cá nhân của khách hàng cho những mục đích nào?",
+    "expected_answer": "Tiki thu thập thông tin cá nhân để xử lý đơn hàng, duy trì tài khoản, chăm sóc khách hàng, cá nhân hóa trải nghiệm, dùng cookie cho phân tích hành vi, bảo đảm an ninh và đáp ứng yêu cầu của pháp luật hoặc cơ quan có thẩm quyền.",
+    "expected_context": "data/standardized/legal/8.md — CHÍNH SÁCH BẢO MẬT THÔNG TIN CÁ NHÂN, mục 2. Mục Đích Thu Thập"
+  },
+  {
+    "question": "Khách hàng có thể gửi khiếu nại tới Tiki qua những kênh nào và Tiki Care phản hồi trong bao lâu?",
+    "expected_answer": "Khách hàng có thể khiếu nại qua hotline 19006035, email hotro@tiki.vn hoặc chat trực tiếp tại Tiki.vn. Bộ phận Tiki Care sẽ tiếp nhận và liên hệ làm rõ yêu cầu sớm nhất có thể, không quá 3 ngày làm việc kể từ ngày nhận yêu cầu.",
+    "expected_context": "data/standardized/news/article_02.md — Chính sách giải quyết khiếu nại, mục Quy trình khiếu nại"
+  },
+  {
+    "question": "Khi giải quyết khiếu nại, Tiki có thể yêu cầu các bên cung cấp gì và thời gian xử lý vấn đề đơn giản dự kiến là bao lâu?",
+    "expected_answer": "Tiki có thể yêu cầu Khách hàng và/hoặc Nhà Bán Hàng cung cấp thông tin, bằng chứng liên quan đến giao dịch và sản phẩm để xác minh vụ việc. Với những vấn đề đơn giản, Tiki dự kiến nỗ lực giải quyết trong khoảng 2 ngày làm việc.",
+    "expected_context": "data/standardized/news/article_02.md — Chính sách giải quyết khiếu nại, Bước 3"
+  },
+  {
+    "question": "Thời gian hỗ trợ đổi trả sản phẩm mua trên Tiki là bao lâu?",
+    "expected_answer": "Tiki hỗ trợ đổi trả sản phẩm trong vòng 30 ngày kể từ lúc nhận hàng thành công, ngoại trừ một số sản phẩm hạn chế đổi trả. Riêng sản phẩm thuộc danh mục Thiết bị số - Phụ kiện số, Điện gia dụng do Tiki Trading cung cấp được hỗ trợ đổi trả trong 365 ngày nếu bị lỗi kỹ thuật.",
+    "expected_context": "data/standardized/news/article_03.md — Chính sách về đổi trả hàng và hoàn tiền, mục Thời gian hỗ trợ đổi trả tại Tiki"
+  },
+  {
+    "question": "Điều kiện đổi trả khi khách hàng đổi ý trên Tiki là gì?",
+    "expected_answer": "Sản phẩm phải còn nguyên tình trạng như khi nhận, hộp và bao bì đầy đủ và nguyên vẹn, chưa qua sử dụng, còn nguyên tem, mác hoặc niêm phong nếu có, đầy đủ phụ kiện, phiếu bảo hành và quà tặng kèm, chưa kích hoạt bảo hành điện tử và không thanh toán bằng hình thức trả góp.",
+    "expected_context": "data/standardized/news/article_03.md — Chính sách về đổi trả hàng và hoàn tiền, mục Điều kiện đổi trả"
+  },
+  {
+    "question": "Nếu sản phẩm giao đến bị hư hỏng, không đảm bảo chất lượng, giao sai sản phẩm hoặc sai số lượng thì khách hàng cần làm gì?",
+    "expected_answer": "Khách hàng nên đồng kiểm và có thể từ chối nhận tại thời điểm giao hàng; ngoài ra cần liên hệ Tiki tối đa 24 giờ kể từ khi nhận hàng để được hỗ trợ.",
+    "expected_context": "data/standardized/news/article_03.md — Chính sách về đổi trả hàng và hoàn tiền, đoạn về sản phẩm hư hỏng/không đảm bảo chất lượng/giao sai"
+  },
+  {
+    "question": "Tiki có những hình thức giao hàng nào?",
+    "expected_answer": "Tiki có các hình thức giao hàng gồm Lưu kho Tiki (FBT - Fulfillment by Tiki), Nhà bán tự vận hành (SD - Seller Delivery), Giao hàng từ Nhà bán (Dropship) và Giao hàng điện tử (E-Delivery).",
+    "expected_context": "data/standardized/news/article_04.md — Các hình thức giao hàng tại Tiki, mục Các phương thức giao hàng"
+  },
+  {
+    "question": "Điểm TikiVIP có giá trị quy đổi và giới hạn sử dụng như thế nào?",
+    "expected_answer": "Mỗi 1 Điểm TikiVIP có giá trị thanh toán tương đương 1 VNĐ và có thể dùng để hỗ trợ thanh toán đơn hàng trên Tiki, nhưng khách hàng không được sử dụng điểm quá 50% giá trị đơn hàng.",
+    "expected_context": "data/standardized/news/article_05.md — Tiki VIP - Chương trình Khách hàng thân thiết, mục Điểm TikiVIP là gì?"
+  },
+  {
+    "question": "Điều kiện để lên hạng Vàng và Kim Cương trong chương trình Tiki VIP là gì?",
+    "expected_answer": "Hạng Vàng yêu cầu đạt ít nhất 3 đơn hàng và chi tiêu từ 1.000.000 VND trong kỳ xét hạng; hạng Kim Cương yêu cầu đạt ít nhất 10 đơn hàng và chi tiêu từ 4.000.000 VND trong kỳ xét hạng.",
+    "expected_context": "data/standardized/news/article_05.md — Tiki VIP - Chương trình Khách hàng thân thiết, mục Làm thế nào để lên hạng Vàng hoặc Kim Cương?"
   }
 ]

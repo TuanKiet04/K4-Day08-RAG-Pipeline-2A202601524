@@ -40,11 +40,11 @@ def semantic_search(query: str, top_k: int = 10) -> list[dict]:
 
     load_dotenv()
     
-    # 1. Khởi tạo client OpenRouter để tính vector cho query
-    client_oai = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=os.environ.get("OPENROUTER_API_KEY"),
-    )
+    # 1. Khởi tạo official OpenAI client để tính vector cho query
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise EnvironmentError("Thiếu OPENAI_API_KEY trong .env để tạo query embedding")
+    client_oai = OpenAI(api_key=api_key)
     
     response = client_oai.embeddings.create(
         input=[query],
