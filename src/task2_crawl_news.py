@@ -36,11 +36,11 @@ def setup_directory():
 # TODO: Điền danh sách URL bài viết cần crawl
 ARTICLE_URLS = [
     # Ví dụ (trang công khai Tiki):
-    "https://hotro.tiki.vn/s/article/huong-dan-dat-hang",
-    "https://hotro.tiki.vn/s/article/chinh-sach-doi-tra-san-pham",
-    "https://hotro.tiki.vn/s/article/lam-the-nao-de-kiem-tra-tinh-trang-don-hang",
-    "https://hotro.tiki.vn/s/article/cac-phuong-thuc-thanh-toan-tren-tiki",
-    "https://hotro.tiki.vn/s/article/huong-dan-su-dung-tiki-xu",
+    "https://hotro.tiki.vn/knowledge-base/post/850-dieu-khoan-su-dung",
+    "https://hotro.tiki.vn/knowledge-base/post/778-chinh-sach-giai-quyet-khieu-nai",
+    "https://hotro.tiki.vn/knowledge-base/post/802-chinh-sach-doi-tra-san-pham",
+    "https://hotro.tiki.vn/knowledge-base/post/838-cac-hinh-thuc-giao-hang-tai-tiki",
+    "https://hotro.tiki.vn/knowledge-base/post/1135",
 ]
 
 
@@ -56,20 +56,36 @@ async def crawl_article(url: str) -> dict:
             "content_markdown": str
         }
     """
-    from crawl4ai import AsyncWebCrawler
+    from playwright.async_api import async_playwright
 
-    # TODO: Implement crawling logic
-    async with AsyncWebCrawler() as crawler:
-        result = await crawler.arun(url=url)
-        # Handle metadata safely depending on crawl4ai version
-        metadata = getattr(result, "metadata", {})
-        title = metadata.get("title", "Unknown") if isinstance(metadata, dict) else "Unknown"
+    # TODO: Implement crawling logic using pure playwright to avoid anti-bot
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page(user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64)')
+        try:
+            await page.goto(url, wait_until='domcontentloaded', timeout=60000)
+            
+            # Đợi tải trang và thử lấy data tối đa 5 lần (mỗi lần 3s) để tránh lỗi mạng chậm
+            text = ""
+            for _ in range(5):
+                await page.wait_for_timeout(3000) # Đợi JS render
+                text = await page.evaluate('document.body.innerText')
+                if text and len(text.strip()) > 200: # Nếu nội dung đủ dài thì dừng đợi
+                    break
+
+            title = await page.title()
+        except Exception as e:
+            print(f"Error crawling {url}: {e}")
+            title = "Unknown"
+            text = ""
+        finally:
+            await browser.close()
         
         return {
             "url": url,
             "title": title,
             "date_crawled": datetime.now().isoformat(),
-            "content_markdown": result.markdown,
+            "content_markdown": text,
         }
 
 
@@ -84,7 +100,7 @@ async def crawl_all():
         # Lưu file JSON
         filename = f"article_{i:02d}.json"
         filepath = DATA_DIR / filename
-        filepath.write_text(json.dumps(article, ensure_ascii=False, indent=2))
+        filepath.write_text(json.dumps(article, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"  ✓ Saved: {filepath}")
 
 
